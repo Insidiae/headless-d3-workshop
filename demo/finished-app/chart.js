@@ -66,7 +66,7 @@ async function drawDots() {
   const colorScale = d3
     .scaleOrdinal()
     .domain([true, false])
-    .range(["hsl(221deg 98% 67%)", "hsl(11deg 98% 67%)"]); //["#588dfd", "#fd7758"]
+    .range(["hsl(330deg 100% 75%)", "hsl(250deg 100% 75%)"]); //["#FF80BF", "#9580FF"]
 
   //* Step 5. Draw data
   const dots = bounds.selectAll("circle").data(dataset);
@@ -103,7 +103,7 @@ async function drawDots() {
     .attr("x", 0)
     .attr("y", -dimensions.margin.left + 25)
     .attr("transform", "rotate(-90)")
-    .attr("fill", "black")
+    .attr("fill", "hsl(60deg 30% 96%)")
     .style("font-size", "1.6em")
     .style("font-weight", "bold")
     .style("text-anchor", "end")
@@ -116,7 +116,7 @@ async function drawDots() {
 
   title
     .append("text")
-    .attr("fill", "black")
+    .attr("fill", "hsl(60deg 30% 96%)")
     .style("font-size", "1.6em")
     .style("font-weight", "bold")
     .style("text-anchor", "middle")
@@ -125,7 +125,7 @@ async function drawDots() {
   title
     .append("text")
     .attr("y", 25)
-    .attr("fill", "black")
+    .attr("fill", "hsl(60deg 30% 96%)")
     .style("font-size", "1.4em")
     .style("font-weight", "medium")
     .style("text-anchor", "middle")
@@ -152,7 +152,7 @@ async function drawDots() {
     .attr("y", -12.5)
     .attr("width", 20)
     .attr("height", 20)
-    .attr("fill", "hsl(11deg 98% 67%)"); //"#fd7758"
+    .attr("fill", "hsl(250deg 100% 75%)"); //"#9580FF"
 
   legend
     .append("text")
@@ -166,7 +166,7 @@ async function drawDots() {
     .attr("y", 12.5)
     .attr("width", 20)
     .attr("height", 20)
-    .attr("fill", "hsl(221deg 98% 67%)"); //"#588dfd"
+    .attr("fill", "hsl(330deg 100% 75%)"); //"#FF80BF"
 
   //* Step 7. Set up interactions
   const tooltip = d3.select("#tooltip");
@@ -203,6 +203,7 @@ async function drawDots() {
 
     tooltip
       .attr("data-year", xAccessor(d))
+      .attr("data-doping", colorAccessor(d))
       .style("transform", `translate(calc(${x}px - 50%), calc(${y}px - 100%))`)
       .style("opacity", 1);
 

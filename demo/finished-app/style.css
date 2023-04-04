@@ -12,6 +12,7 @@ body {
 
 html {
   font-family: "Inter", sans-serif;
+  color: hsl(60deg 30% 96%);
 }
 
 body {
@@ -23,25 +24,25 @@ body {
   letter-spacing: -0.011em;
   font-family: "Inter var", sans-serif;
   font-size: 16px;
-  background-color: hsl(221deg 98% 67%);
+  background-color: hsl(250deg 15% 15%);
 }
 
 .wrapper {
   margin-inline: auto;
-  background: #f8f9fa;
+  background: hsl(250deg 15% 30%);
   position: relative;
   width: fit-content;
   border-radius: 8px;
 }
 
 .x-axis-label {
-  fill: hsl(0deg 0% 0%);
+  fill: hsl(60deg 30% 96%);
   font-size: 1.4em;
   text-transform: capitalize;
 }
 
 .y-axis-label {
-  fill: hsl(0deg 0% 0%);
+  fill: hsl(60deg 30% 96%);
   font-size: 1.4em;
   text-anchor: middle;
   transform: rotate(-90deg);
@@ -52,12 +53,13 @@ body {
 } */
 
 .legend-text {
+  fill: hsl(60deg 30% 96%);
   font-size: 0.6em;
   text-anchor: end;
 }
 
 .voronoi {
-  /* stroke: hsl(11deg 98% 67%); */
+  /* stroke: hsl(170deg 100% 75%); */
   fill: transparent;
 }
 
@@ -67,11 +69,11 @@ body {
   top: -14px;
   left: 0;
   padding: 0.6em 1em;
-  background: hsl(0deg 0% 100%);
+  background: hsl(250deg 25% 55%);
   text-align: center;
   line-height: 1.4em;
   font-size: 0.9em;
-  border: 1px solid hsl(0deg 0% 87%);
+  border: 1px solid hsl(250deg 15% 15%);
   z-index: 10;
   transition: all 0.1s ease-out;
   pointer-events: none;
@@ -84,13 +86,18 @@ body {
   left: 50%;
   width: 12px;
   height: 12px;
-  background: hsl(0deg 0% 100%);
-  border: 1px solid hsl(0deg 0% 87%);
+  background: hsl(250deg 25% 55%);
+  border: 1px solid hsl(250deg 15% 15%);
   border-top-color: transparent;
   border-left-color: transparent;
   transform: translate(-50%, 50%) rotate(45deg);
   transform-origin: center center;
   z-index: 10;
+}
+
+.tooltip[data-doping="true"],
+.tooltip[data-doping="true"]:before {
+  background: hsl(290deg 25% 55%);
 }
 
 .tooltip-athlete {
