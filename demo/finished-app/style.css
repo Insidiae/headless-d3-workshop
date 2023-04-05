@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg-tooltip-no-doping: hsl(250deg 25% 55%);
+  --bg-tooltip-doping: hsl(290deg 25% 55%);
+  --color-no-doping: hsl(250deg 100% 75%);
+  --color-doping: hsl(330deg 100% 75%);
+  --color-text: hsl(60deg 30% 96%);
+}
+
 html,
 body {
   margin: 0;
@@ -12,7 +20,7 @@ body {
 
 html {
   font-family: "Inter", sans-serif;
-  color: hsl(60deg 30% 96%);
+  color: var(--color-text);
 }
 
 body {
@@ -35,27 +43,41 @@ body {
   border-radius: 8px;
 }
 
+.dot,
+.tooltip-dot {
+  fill: var(--color-no-doping);
+}
+
+.dot[data-doping="true"],
+.tooltip-dot[data-doping="true"] {
+  fill: var(--color-doping);
+}
+
 .x-axis-label {
-  fill: hsl(60deg 30% 96%);
+  fill: var(--color-text);
   font-size: 1.4em;
   text-transform: capitalize;
 }
 
 .y-axis-label {
-  fill: hsl(60deg 30% 96%);
+  fill: var(--color-text);
   font-size: 1.4em;
   text-anchor: middle;
   transform: rotate(-90deg);
 }
 
-/* circle {
-  fill: hsl(221deg 98% 67%);
-} */
-
 .legend-text {
-  fill: hsl(60deg 30% 96%);
+  fill: var(--color-text);
   font-size: 0.6em;
   text-anchor: end;
+}
+
+.legend-no-doping {
+  fill: var(--color-no-doping);
+}
+
+.legend-doping {
+  fill: var(--color-doping);
 }
 
 .voronoi {
@@ -69,7 +91,7 @@ body {
   top: -14px;
   left: 0;
   padding: 0.6em 1em;
-  background: hsl(250deg 25% 55%);
+  background: var(--bg-tooltip-no-doping);
   text-align: center;
   line-height: 1.4em;
   font-size: 0.9em;
@@ -86,7 +108,7 @@ body {
   left: 50%;
   width: 12px;
   height: 12px;
-  background: hsl(250deg 25% 55%);
+  background: var(--bg-tooltip-no-doping);
   border: 1px solid hsl(250deg 15% 15%);
   border-top-color: transparent;
   border-left-color: transparent;
@@ -97,7 +119,7 @@ body {
 
 .tooltip[data-doping="true"],
 .tooltip[data-doping="true"]:before {
-  background: hsl(290deg 25% 55%);
+  background: var(--bg-tooltip-doping);
 }
 
 .tooltip-athlete {

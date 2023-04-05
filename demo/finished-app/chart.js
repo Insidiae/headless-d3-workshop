@@ -63,10 +63,10 @@ async function drawDots() {
     .range([0, dimensions.boundedHeight])
     .nice();
 
-  const colorScale = d3
-    .scaleOrdinal()
-    .domain([true, false])
-    .range(["hsl(330deg 100% 75%)", "hsl(250deg 100% 75%)"]); //["#FF80BF", "#9580FF"]
+  // const colorScale = d3
+  //   .scaleOrdinal()
+  //   .domain([true, false])
+  //   .range(["hsl(330deg 100% 75%)", "hsl(250deg 100% 75%)"]); //["#FF80BF", "#9580FF"]
 
   //* Step 5. Draw data
   const dots = bounds.selectAll("circle").data(dataset);
@@ -76,9 +76,9 @@ async function drawDots() {
     .attr("class", "dot")
     .attr("data-xvalue", (d) => xAccessor(d))
     .attr("data-yvalue", (d) => yAccessor(d))
+    .attr("data-doping", (d) => colorAccessor(d))
     .attr("cx", (d) => xScale(xAccessor(d)))
     .attr("cy", (d) => yScale(yAccessor(d)))
-    .attr("fill", (d) => colorScale(colorAccessor(d)))
     .attr("r", 5);
 
   //* Step 6. Draw peripherals
@@ -103,7 +103,7 @@ async function drawDots() {
     .attr("x", 0)
     .attr("y", -dimensions.margin.left + 25)
     .attr("transform", "rotate(-90)")
-    .attr("fill", "hsl(60deg 30% 96%)")
+    .attr("fill", "var(--color-text)")
     .style("font-size", "1.6em")
     .style("font-weight", "bold")
     .style("text-anchor", "end")
@@ -116,7 +116,7 @@ async function drawDots() {
 
   title
     .append("text")
-    .attr("fill", "hsl(60deg 30% 96%)")
+    .attr("fill", "var(--color-text)")
     .style("font-size", "1.6em")
     .style("font-weight", "bold")
     .style("text-anchor", "middle")
@@ -125,7 +125,7 @@ async function drawDots() {
   title
     .append("text")
     .attr("y", 25)
-    .attr("fill", "hsl(60deg 30% 96%)")
+    .attr("fill", "var(--color-text)")
     .style("font-size", "1.4em")
     .style("font-weight", "medium")
     .style("text-anchor", "middle")
@@ -152,7 +152,7 @@ async function drawDots() {
     .attr("y", -12.5)
     .attr("width", 20)
     .attr("height", 20)
-    .attr("fill", "hsl(250deg 100% 75%)"); //"#9580FF"
+    .attr("class", "legend-no-doping");
 
   legend
     .append("text")
@@ -166,7 +166,7 @@ async function drawDots() {
     .attr("y", 12.5)
     .attr("width", 20)
     .attr("height", 20)
-    .attr("fill", "hsl(330deg 100% 75%)"); //"#FF80BF"
+    .attr("class", "legend-doping");
 
   //* Step 7. Set up interactions
   const tooltip = d3.select("#tooltip");
@@ -213,9 +213,9 @@ async function drawDots() {
     const tooltipDot = bounds
       .append("circle")
       .attr("class", "tooltip-dot")
+      .attr("data-doping", colorAccessor(d))
       .attr("cx", xScale(xAccessor(d)))
       .attr("cy", yScale(yAccessor(d)))
-      .attr("fill", colorScale(colorAccessor(d)))
       .style("pointer-events", "none")
       .transition()
       .duration(250)
