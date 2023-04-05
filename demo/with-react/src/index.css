@@ -23,7 +23,7 @@ html {
 	color: var(--color-text);
 }
 
-body {
+#root {
 	display: flex;
 	align-items: center;
 	width: 100%;
