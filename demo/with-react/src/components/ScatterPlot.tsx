@@ -1,5 +1,22 @@
 import * as React from "react";
 import * as d3 from "d3";
+import { useTransition, animated, config } from "@react-spring/web";
+
+import useTooltip from "../hooks/useTooltip";
+
+type TooltipData = {
+	name: string;
+	nationality: string;
+	year: number;
+	time: string;
+	doping: string;
+	dot: [
+		{
+			cx: number;
+			cy: number;
+		}
+	];
+};
 
 import type { CyclistData, BoundedDimensions } from "../utils/types";
 
@@ -35,6 +52,58 @@ function ScatterPlot({
 	const xTicks = xScale.ticks();
 	const yTicks = yScale.ticks();
 
+	//* Step 7a. Handle interactions
+	const [tooltip, dispatch] = useTooltip<TooltipData>();
+
+	function showTooltip(d: CyclistData) {
+		const formatTime = d3.timeFormat("%M:%S");
+		const x = xScale(xAccessor(d)) + dimensions.margin.left;
+		const y = yScale(yAccessor(d)) + dimensions.margin.top;
+
+		dispatch({
+			type: "SHOW",
+			payload: {
+				coords: { x, y },
+				data: {
+					name: d.Name,
+					nationality: d.Nationality,
+					year: xAccessor(d),
+					time: formatTime(yAccessor(d)),
+					doping: d.Doping,
+					dot: [
+						{
+							cx: xScale(xAccessor(d)),
+							cy: yScale(yAccessor(d)),
+						},
+					],
+				},
+			},
+		});
+	}
+
+	function hideTooltip() {
+		dispatch({ type: "HIDE" });
+	}
+
+	const transitions = useTransition(
+		tooltip.show ? tooltip.data?.dot : undefined,
+		{
+			from: { r: 0 },
+			enter: { r: 7 },
+			leave: { r: 0 },
+			config: config.gentle,
+		}
+	);
+
+	const delaunay = d3.Delaunay.from(
+		dataset,
+		(d) => xScale(xAccessor(d)),
+		(d) => yScale(yAccessor(d))
+	);
+	const voronoi = delaunay.voronoi();
+	voronoi.xmax = dimensions.boundedWidth;
+	voronoi.ymax = dimensions.boundedHeight;
+
 	return (
 		<>
 			{/* Step 3. Draw canvas */}
@@ -45,6 +114,7 @@ function ScatterPlot({
 					{/* Step 5. Draw data */}
 					{dataset.map((data, idx) => (
 						<circle
+							key={idx}
 							className="dot"
 							data-xvalue={xAccessor(data)}
 							data-yvalue={yAccessor(data)}
@@ -52,9 +122,33 @@ function ScatterPlot({
 							cx={xScale(xAccessor(data))}
 							cy={yScale(yAccessor(data))}
 							r="5"
+							//? OPTIONAL: uncomment these to make the freeCodeCamp tests pass
+							// onMouseEnter={() => showTooltip(data)}
+							// onMouseLeave={() => hideTooltip()}
+						/>
+					))}
+					{dataset.map((data, idx) => (
+						<path
+							key={idx}
+							className="voronoi"
+							d={voronoi.renderCell(idx)}
+							onMouseEnter={() => showTooltip(data)}
+							onMouseLeave={() => hideTooltip()}
 						/>
 					))}
 					{/* Step 6. Draw peripherals */}
+					{transitions(({ r }, dot) =>
+						dot ? (
+							<animated.circle
+								className="tooltip-dot"
+								data-doping={!!tooltip.data?.doping}
+								cx={dot.cx}
+								cy={dot.cy}
+								r={r}
+								style={{ pointerEvents: "none" }}
+							/>
+						) : null
+					)}
 					<g
 						id="x-axis"
 						fontSize={10}
@@ -64,7 +158,11 @@ function ScatterPlot({
 					>
 						<line stroke="currentColor" x2={dimensions.boundedWidth} />
 						{xTicks.map((tick, i) => (
-							<g key={i} transform={`translate(${xScale(tick)}, 0)`}>
+							<g
+								key={i}
+								className="tick"
+								transform={`translate(${xScale(tick)}, 0)`}
+							>
 								<line stroke="currentColor" y2={6} />
 								<text fill="currentColor" y={9} dy="0.71em">
 									{tick}
@@ -75,7 +173,11 @@ function ScatterPlot({
 					<g id="y-axis" fontSize={10} fontFamily="sans-serif" textAnchor="end">
 						<line stroke="currentColor" y2={dimensions.boundedHeight} />
 						{yTicks.map((tick, i) => (
-							<g key={i} transform={`translate(0, ${yScale(tick)})`}>
+							<g
+								key={i}
+								className="tick"
+								transform={`translate(0, ${yScale(tick)})`}
+							>
 								<line stroke="currentColor" x2={-6} />
 								<text fill="currentColor" x={-9} dy="0.32em">
 									{d3.timeFormat("%M:%S")(tick)}
@@ -150,6 +252,32 @@ function ScatterPlot({
 					</text>
 				</g>
 			</svg>
+			{/* Step 7b. Create interactions */}
+			<div
+				id="tooltip"
+				className="tooltip"
+				style={{
+					opacity: tooltip.show ? 1 : 0,
+					transform: `translate(calc(${tooltip.coords.x}px - 50%), calc(${tooltip.coords.y}px - 100%))`,
+				}}
+				data-year={tooltip.data?.year ?? null}
+				data-doping={!!tooltip.data?.doping}
+			>
+				<div className="tooltip-athlete">
+					<span id="name">{tooltip.data?.name}</span>:{" "}
+					<span id="nationality">{tooltip.data?.nationality}</span>
+				</div>
+				<div className="tooltip-date">
+					Year: <span id="year">{tooltip.data?.year}</span>, Time:{" "}
+					<span id="time">{tooltip.data?.time}</span>
+				</div>
+				<p
+					id="doping"
+					style={{ display: tooltip.data?.doping ? "block" : "none" }}
+				>
+					{tooltip.data?.doping}
+				</p>
+			</div>
 		</>
 	);
 }
