@@ -1,7 +1,17 @@
 <script lang="ts">
+	import { elasticOut } from 'svelte/easing';
 	import * as d3 from "d3";
 
 	import type { CyclistData, BoundedDimensions } from "../utils/types";
+
+	type TooltipData = {
+		name: string;
+		nationality: string;
+		year: number;
+		time: string;
+		doping: string;
+		// TODO: tooltip dot
+	};
 
 	export let dataset: CyclistData[];
 	export let dimensions: BoundedDimensions;
@@ -32,14 +42,50 @@
 	const yTicks = yScale.ticks();
 
 	//* Step 7a. Handle interactions
-	//TODO
+	let isTooltipVisible = false;
+	let tooltipPosition = {
+		x: 0,
+		y: 0
+	};
+
+	let tooltipData: TooltipData | undefined;
+
+	function showTooltip(d: CyclistData) {
+		const formatTime = d3.timeFormat("%M:%S");
+		const x = xScale(xAccessor(d)) + dimensions.margin.left;
+		const y = yScale(yAccessor(d)) + dimensions.margin.top;
+
+		isTooltipVisible = true;
+		tooltipPosition = { x, y };
+		tooltipData = {
+			name: d.Name,
+			nationality: d.Nationality,
+			year: xAccessor(d),
+			time: formatTime(yAccessor(d)),
+			doping: d.Doping,
+			// TODO: tooltip dot
+		}
+	}
+
+	function hideTooltip() {
+		isTooltipVisible = false;
+	}
+
+	const delaunay = d3.Delaunay.from(
+		dataset,
+		(d) => xScale(xAccessor(d)),
+		(d) => yScale(yAccessor(d))
+	);
+	const voronoi = delaunay.voronoi();
+	voronoi.xmax = dimensions.boundedWidth;
+	voronoi.ymax = dimensions.boundedHeight;
 </script>
 
 <!-- Step 3. Draw canvas -->
 <svg width={dimensions.width} height={dimensions.height}>
 	<g transform={`translate(${dimensions.margin.left}, ${dimensions.margin.top})`}>
 		<!-- Step 5. Draw data -->
-		{#each dataset as data}
+		{#each dataset as data, idx}
 			<circle
 				class="dot"
 				data-xvalue={xAccessor(data)}
@@ -48,9 +94,18 @@
 				cx={xScale(xAccessor(data))}
 				cy={yScale(yAccessor(data))}
 				r="5"
+				on:mouseenter={() => showTooltip(data)}
+				on:mouseleave={() => hideTooltip()}
+			/>
+			<path
+				class="voronoi"
+				d={voronoi.renderCell(idx)}
+				on:mouseenter={() => showTooltip(data)}
+				on:mouseleave={() => hideTooltip()}
 			/>
 		{/each}
 		<!-- Step 6. Draw peripherals -->
+		<!-- TODO: tooltip dot -->
 		<g
 			id="x-axis"
 			font-size={10}
@@ -135,4 +190,28 @@
 	</g>
 </svg>
 <!-- Step 7b. Create interactions -->
-<!-- TODO -->
+<div
+	id="tooltip"
+	class="tooltip"
+	style="
+		opacity: {isTooltipVisible ? 1 : 0};
+		transform: translate(calc({tooltipPosition.x}px - 50%), calc({tooltipPosition.y}px - 100%));
+	"
+	data-year={tooltipData?.year ?? null}
+	data-doping={!!tooltipData?.doping}
+>
+	<div class="tooltip-athlete">
+		<span id="name">{tooltipData?.name}</span>:{" "}
+		<span id="nationality">{tooltipData?.nationality}</span>
+	</div>
+	<div class="tooltip-date">
+		Year: <span id="year">{tooltipData?.year}</span>, Time:{" "}
+		<span id="time">{tooltipData?.time}</span>
+	</div>
+	<p
+		id="doping"
+		style="display: {tooltipData?.doping ? "block" : "none"}"
+	>
+		{tooltipData?.doping}
+	</p>
+</div>
