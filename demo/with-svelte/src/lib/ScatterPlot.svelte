@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { elasticOut } from 'svelte/easing';
+	import { sineIn, sineOut } from 'svelte/easing';
 	import * as d3 from "d3";
 
 	import type { CyclistData, BoundedDimensions } from "../utils/types";
@@ -10,7 +10,6 @@
 		year: number;
 		time: string;
 		doping: string;
-		// TODO: tooltip dot
 	};
 
 	export let dataset: CyclistData[];
@@ -49,6 +48,7 @@
 	};
 
 	let tooltipData: TooltipData | undefined;
+	let tooltipDot: { cx: number; cy: number } | null = null;
 
 	function showTooltip(d: CyclistData) {
 		const formatTime = d3.timeFormat("%M:%S");
@@ -63,12 +63,26 @@
 			year: xAccessor(d),
 			time: formatTime(yAccessor(d)),
 			doping: d.Doping,
-			// TODO: tooltip dot
 		}
+		tooltipDot = {
+			cx: xScale(xAccessor(d)),
+			cy: yScale(yAccessor(d)),
+		};
+		console.log(tooltipDot)
 	}
 
 	function hideTooltip() {
 		isTooltipVisible = false;
+		tooltipDot = null;
+	}
+
+	function animateDot(node, params?) {
+		return {
+			delay: params.delay || 0,
+			duration: params.duration || 400,
+			easing: params.easing || sineIn,
+			css: (t) => `r: ${t * 7}`
+		};
 	}
 
 	const delaunay = d3.Delaunay.from(
@@ -105,7 +119,19 @@
 			/>
 		{/each}
 		<!-- Step 6. Draw peripherals -->
-		<!-- TODO: tooltip dot -->
+		{#key tooltipDot}
+			{#if isTooltipVisible}
+				<circle
+					in:animateDot="{{ duration: 250 }}"
+					out:animateDot="{{ duration: 500, easing: sineOut }}"
+					class="tooltip-dot"
+					data-doping={!!tooltipData?.doping}
+					cx={tooltipDot?.cx}
+					cy={tooltipDot?.cy}
+					style="pointer-events: none; r: 7"
+				/>
+				{/if}
+		{/key}
 		<g
 			id="x-axis"
 			font-size={10}
