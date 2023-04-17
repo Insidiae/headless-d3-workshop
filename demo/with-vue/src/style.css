@@ -128,3 +128,16 @@ html {
 	font-size: 1.1em;
 	line-height: 1.4em;
 }
+
+.v-enter-active {
+	transition: r 250ms ease;
+}
+
+.v-leave-active {
+	transition: r 500ms ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+	r: 0;
+}

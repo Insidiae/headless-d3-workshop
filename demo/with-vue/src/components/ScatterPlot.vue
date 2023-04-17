@@ -1,8 +1,29 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { reactive } from "vue";
 import * as d3 from "d3";
 
 import type { CyclistData, BoundedDimensions } from "../utils/types";
+
+type TooltipData = {
+	name: string;
+	nationality: string;
+	year: number;
+	time: string;
+	doping: string;
+};
+
+type TooltipState = {
+	show: boolean;
+	coords: {
+		x: number;
+		y: number;
+	};
+	data?: TooltipData;
+	dot?: {
+		cx: number;
+		cy: number;
+	};
+};
 
 const { dataset, dimensions } = defineProps<{
 	dataset: CyclistData[];
@@ -35,7 +56,46 @@ const xTicks = xScale.ticks();
 const yTicks = yScale.ticks();
 
 //* Step 7a. Handle interactions
-//TODO
+const tooltipState: TooltipState = reactive({
+	show: false,
+	coords: {
+		x: 0,
+		y: 0,
+	},
+});
+
+function showTooltip(d: CyclistData) {
+	const formatTime = d3.timeFormat("%M:%S");
+	const x = xScale(xAccessor(d)) + dimensions.margin.left;
+	const y = yScale(yAccessor(d)) + dimensions.margin.top;
+
+	tooltipState.show = true;
+	tooltipState.coords = { x, y };
+	tooltipState.data = {
+		name: d.Name,
+		nationality: d.Nationality,
+		year: xAccessor(d),
+		time: formatTime(yAccessor(d)),
+		doping: d.Doping,
+	};
+	tooltipState.dot = {
+		cx: xScale(xAccessor(d)),
+		cy: yScale(yAccessor(d)),
+	};
+}
+
+function hideTooltip() {
+	tooltipState.show = false;
+}
+
+const delaunay = d3.Delaunay.from(
+	dataset,
+	(d) => xScale(xAccessor(d)),
+	(d) => yScale(yAccessor(d))
+);
+const voronoi = delaunay.voronoi();
+voronoi.xmax = dimensions.boundedWidth;
+voronoi.ymax = dimensions.boundedHeight;
 </script>
 
 <template>
@@ -54,8 +114,29 @@ const yTicks = yScale.ticks();
 				:cx="xScale(xAccessor(data))"
 				:cy="yScale(yAccessor(data))"
 				r="5"
+				@mouseenter="showTooltip(data)"
+				@mouseleave="hideTooltip"
+			/>
+			<path
+				v-for="(data, idx) in dataset"
+				class="voronoi"
+				:d="voronoi.renderCell(idx)"
+				@mouseenter="showTooltip(data)"
+				@mouseleave="hideTooltip"
 			/>
 			<!-- Step 6. Draw peripherals -->
+			<Transition>
+				<circle
+					v-if="tooltipState.show"
+					:key="`${tooltipState.dot?.cx}-${tooltipState.dot?.cy}`"
+					class="tooltip-dot"
+					:data-doping="!!tooltipState.data?.doping"
+					:cx="tooltipState.dot?.cx || 0"
+					:cy="tooltipState.dot?.cy || 0"
+					r="7"
+					style="pointer-events: none"
+				/>
+			</Transition>
 			<g
 				id="x-axis"
 				font-size="10"
@@ -136,5 +217,33 @@ const yTicks = yScale.ticks();
 		</g>
 	</svg>
 	<!-- Step 7b. Create interactions -->
-	<!-- TODO -->
+	<div
+		id="tooltip"
+		class="tooltip"
+		:style="`
+			opacity: ${tooltipState.show ? 1 : 0};
+			transform: translate(calc(${tooltipState.coords.x}px - 50%), calc(${
+			tooltipState.coords.y
+		}px - 100%));
+		`"
+		:data-year="tooltipState.data?.year ?? null"
+		:data-doping="!!tooltipState.data?.doping"
+	>
+		<div className="tooltip-athlete">
+			<span id="name">{{ tooltipState.data?.name }}</span
+			>:
+			<span id="nationality">{{ tooltipState.data?.nationality }}</span>
+		</div>
+		<div className="tooltip-date">
+			Year: <span id="year">{{ tooltipState.data?.year }}</span
+			>, Time:
+			<span id="time">{{ tooltipState.data?.time }}</span>
+		</div>
+		<p
+			id="doping"
+			:style="`display: ${tooltipState.data?.doping ? 'block' : 'none'}`"
+		>
+			{{ tooltipState.data?.doping }}
+		</p>
+	</div>
 </template>
