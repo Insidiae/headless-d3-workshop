@@ -128,3 +128,23 @@ html {
 	font-size: 1.1em;
 	line-height: 1.4em;
 }
+
+.tooltip-dot-exit,
+.tooltip-dot-enter-done {
+	r: 7;
+}
+
+.tooltip-dot-enter,
+.tooltip-dot-exit-done {
+	r: 0;
+}
+
+.tooltip-dot-enter-active {
+	r: 7;
+	transition: r 250ms ease;
+}
+
+.tooltip-dot-exit-active {
+	r: 0;
+	transition: r 500ms ease;
+}

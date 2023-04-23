@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as d3 from "d3";
-import { useTransition, animated, config } from "@react-spring/web";
+import { TransitionGroup, CSSTransition } from "react-transition-group";
 
 import type { CyclistData, BoundedDimensions } from "../utils/types";
 
@@ -19,13 +19,10 @@ type TooltipState = {
 		y: number;
 	};
 	data?: TooltipData;
-	dot?: [
-		{
-			cx: number;
-			cy: number;
-			doping: boolean;
-		}
-	];
+	dot?: {
+		cx: number;
+		cy: number;
+	};
 };
 
 function ScatterPlot({
@@ -84,13 +81,10 @@ function ScatterPlot({
 				time: formatTime(yAccessor(d)),
 				doping: d.Doping,
 			},
-			dot: [
-				{
-					cx: xScale(xAccessor(d)),
-					cy: yScale(yAccessor(d)),
-					doping: !!d.Doping,
-				},
-			],
+			dot: {
+				cx: xScale(xAccessor(d)),
+				cy: yScale(yAccessor(d)),
+			},
 		});
 	}
 
@@ -100,13 +94,6 @@ function ScatterPlot({
 			show: false,
 		}));
 	}
-
-	const transitions = useTransition(tooltip.show ? tooltip.dot : undefined, {
-		from: { r: 0 },
-		enter: { r: 7 },
-		leave: { r: 0 },
-		config: config.wobbly,
-	});
 
 	const delaunay = d3.Delaunay.from(
 		dataset,
@@ -150,18 +137,32 @@ function ScatterPlot({
 						/>
 					))}
 					{/* Step 6. Draw peripherals */}
-					{transitions(({ r }, dot) =>
-						dot ? (
-							<animated.circle
-								className="tooltip-dot"
-								data-doping={dot.doping}
-								cx={dot.cx}
-								cy={dot.cy}
-								r={r}
-								style={{ pointerEvents: "none" }}
-							/>
-						) : null
-					)}
+					<TransitionGroup component={null}>
+						<CSSTransition
+							key={
+								tooltip.show ? `${tooltip.dot?.cx}-${tooltip.dot?.cy}` : "hide"
+							}
+							timeout={{ enter: 250, exit: 500 }}
+							classNames="tooltip-dot"
+							unmountOnExit
+						>
+							{tooltip.show ? (
+								<circle
+									className="tooltip-dot"
+									data-doping={!!tooltip.data?.doping}
+									cx={tooltip.dot?.cx || 0}
+									cy={tooltip.dot?.cy || 0}
+									style={{
+										pointerEvents: "none",
+									}}
+								/>
+							) : (
+								//? This is just to let <TransitionGroup /> trigger
+								//? the exit animation when hiding the tooltip
+								<g />
+							)}
+						</CSSTransition>
+					</TransitionGroup>
 					<g
 						id="x-axis"
 						fontSize={10}
