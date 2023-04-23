@@ -129,6 +129,7 @@ html {
 	line-height: 1.4em;
 }
 
+/* The styles below are necessary when using react-transition-group: */
 .tooltip-dot-exit,
 .tooltip-dot-enter-done {
 	r: 7;

@@ -68,7 +68,6 @@
 			cx: xScale(xAccessor(d)),
 			cy: yScale(yAccessor(d)),
 		};
-		console.log(tooltipDot)
 	}
 
 	function hideTooltip() {
@@ -130,7 +129,7 @@
 					cy={tooltipDot?.cy}
 					style="pointer-events: none; r: 7"
 				/>
-				{/if}
+			{/if}
 		{/key}
 		<g
 			id="x-axis"
