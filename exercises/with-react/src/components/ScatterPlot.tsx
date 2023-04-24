@@ -18,13 +18,6 @@ type TooltipState = {
 		y: number;
 	};
 	data?: TooltipData;
-	dot?: [
-		{
-			cx: number;
-			cy: number;
-			doping: boolean;
-		}
-	];
 };
 
 function ScatterPlot({

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { sineIn, sineOut } from 'svelte/easing';
 	import * as d3 from "d3";
 
 	import type { CyclistData, BoundedDimensions } from "../utils/types";

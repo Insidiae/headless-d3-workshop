@@ -19,10 +19,6 @@ type TooltipState = {
 		y: number;
 	};
 	data?: TooltipData;
-	dot?: {
-		cx: number;
-		cy: number;
-	};
 };
 
 const { dataset, dimensions } = defineProps<{
