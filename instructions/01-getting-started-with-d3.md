@@ -244,7 +244,21 @@ dots
 
 Having the scatterplot dots on the screen looks nice, but it's still difficult to make sense of our data because we're still missing an important part: we need to display the x- and y-axes!
 
-Again, D3 has build-in methods to display each axis. We already have everything we need to display the axis lines, so now is a good time to [read the D3 docs](https://github.com/d3/d3-axis#api-reference) and see which functions we need to use!
+Again, D3 has built-in methods to display each axis:
+
+```js
+const axisGenerator = d3
+	.axisBottom() // or axisLeft/axisTop/axisRight
+	.scale(/* your scale function */)
+	.tickFormat(/* if you want to format exis ticks */);
+const axis = bounds
+	.append("g")
+	.call(axisGenerator)
+	.attr(/* any attaibute you want to apply */)
+	.style(/* any style you want to apply */);
+```
+
+We already have everything we need to display the axis lines, so now is a good time to [read the D3 docs](https://github.com/d3/d3-axis#api-reference) and implement our x- and y-axes!
 
 Some things to take note:
 
