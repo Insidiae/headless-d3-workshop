@@ -1,6 +1,23 @@
-# 05. Title Goes Here
+# 05. Refactoring The Chart Interactions
 
 ## Adding the tooltip interactions
+
+This step is also slightly trickier to implement using a framework. The implementation for the event handlers may vary slightly depending on how your framework lets you manage state, but the overall logic should remain the same.
+
+To implement the tooltip, we'll use state variables to manage three things:
+
+- Whether the tooltip should be shown or not
+- The position of the tooltip (x/y coordinates)
+- The data we'll be displaying in the tooltip
+
+With these pointers in mind, let's implement the `showTooltip` and `hideTooltip` functions using a framework!
+
+**Hints**
+
+- You can get the HTML code for the tooltip from the `index.html` file from the previous version.
+- Since we're using TypeScript for this new version of the project, I've included a `TooltipData` and/or `TooltipState` types to help you figure out what you need to keep track of using state!
+- The tooltip should initially be hidden, and the x/y coordinates can also be both set to `0` initially.
+- For the `showTooltip` function, we'll only need to pass the `CyclistData` parameter from the hovered dot.
 
 <details>
 	<summary>Solution: React</summary>
@@ -296,7 +313,7 @@ Finally, hook up the event handlers to the dots:
 
 ## Adding the Voronoi diagram
 
-We can use the same code as before to generate the voronoi cells:
+Now adding the Voronoi diagram should be a lot easier! We can use the same code as before to generate the voronoi cells:
 
 ```ts
 const delaunay = d3.Delaunay.from(
@@ -309,7 +326,7 @@ voronoi.xmax = dimensions.boundedWidth;
 voronoi.ymax = dimensions.boundedHeight;
 ```
 
-Then, we can render these cells by inserting them in Step 5:
+Then, we can render these cells by inserting them in Step 5, and connect the `showTooltip` and `hideToltip` functions from before. Try it out yourself!
 
 <details>
 	<summary>Solution: React</summary>
@@ -366,6 +383,12 @@ Then, we can render these cells by inserting them in Step 5:
 </details>
 
 ## Displaying the tooltip dot
+
+There's only one thing left now to reimplement from the previous version! Again, we'll be using our framework of choice to show/hide the animated tooltip dot, but the solutions can be different depending on how you implement animations using your framework.
+
+**Hint**
+
+- Since we already have a state variable to keep track of our tooltip, we can add more fields to manage our tooltip dot.
 
 > **Note**
 >
